@@ -1444,7 +1444,11 @@ describe('mcp-client', () => {
         expect(transport).toBeInstanceOf(StreamableHTTPClientTransport);
         expect(transport).toMatchObject({
           _url: new URL('http://test-server'),
-          _requestInit: { headers: {} },
+          _requestInit: {
+            headers: {
+              Accept: 'application/json, text/event-stream',
+            },
+          },
         });
       });
 
@@ -1463,7 +1467,32 @@ describe('mcp-client', () => {
         expect(transport).toMatchObject({
           _url: new URL('http://test-server'),
           _requestInit: {
-            headers: { Authorization: 'derp' },
+            headers: {
+              Authorization: 'derp',
+              Accept: 'application/json, text/event-stream',
+            },
+          },
+        });
+      });
+
+      it('preserves existing Accept values and appends missing required type', async () => {
+        const transport = await createTransport(
+          'test-server',
+          {
+            httpUrl: 'http://test-server',
+            headers: { Accept: 'application/json' },
+          },
+          false,
+          EMPTY_CONFIG,
+        );
+
+        expect(transport).toBeInstanceOf(StreamableHTTPClientTransport);
+        expect(transport).toMatchObject({
+          _url: new URL('http://test-server'),
+          _requestInit: {
+            headers: {
+              Accept: 'application/json, text/event-stream',
+            },
           },
         });
       });
@@ -1482,7 +1511,11 @@ describe('mcp-client', () => {
         expect(transport).toBeInstanceOf(StreamableHTTPClientTransport);
         expect(transport).toMatchObject({
           _url: new URL('http://test-server'),
-          _requestInit: { headers: {} },
+          _requestInit: {
+            headers: {
+              Accept: 'application/json, text/event-stream',
+            },
+          },
         });
       });
 
@@ -1501,7 +1534,10 @@ describe('mcp-client', () => {
         expect(transport).toMatchObject({
           _url: new URL('http://test-server'),
           _requestInit: {
-            headers: { Authorization: 'derp' },
+            headers: {
+              Authorization: 'derp',
+              Accept: 'application/json, text/event-stream',
+            },
           },
         });
       });
@@ -1520,7 +1556,11 @@ describe('mcp-client', () => {
         expect(transport).toBeInstanceOf(StreamableHTTPClientTransport);
         expect(transport).toMatchObject({
           _url: new URL('http://test-server'),
-          _requestInit: { headers: {} },
+          _requestInit: {
+            headers: {
+              Accept: 'application/json, text/event-stream',
+            },
+          },
         });
       });
 
@@ -1555,7 +1595,11 @@ describe('mcp-client', () => {
         expect(transport).toBeInstanceOf(StreamableHTTPClientTransport);
         expect(transport).toMatchObject({
           _url: new URL('http://test-server'),
-          _requestInit: { headers: {} },
+          _requestInit: {
+            headers: {
+              Accept: 'application/json, text/event-stream',
+            },
+          },
         });
       });
 
@@ -1575,7 +1619,10 @@ describe('mcp-client', () => {
         expect(transport).toMatchObject({
           _url: new URL('http://test-server'),
           _requestInit: {
-            headers: { Authorization: 'Bearer token' },
+            headers: {
+              Authorization: 'Bearer token',
+              Accept: 'application/json, text/event-stream',
+            },
           },
         });
       });
@@ -1616,7 +1663,11 @@ describe('mcp-client', () => {
         expect(transport).toBeInstanceOf(StreamableHTTPClientTransport);
         expect(transport).toMatchObject({
           _url: new URL('http://test-server-http'),
-          _requestInit: { headers: {} },
+          _requestInit: {
+            headers: {
+              Accept: 'application/json, text/event-stream',
+            },
+          },
         });
       });
     });

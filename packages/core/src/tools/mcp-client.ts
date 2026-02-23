@@ -1867,7 +1867,7 @@ function createUrlTransport(
     }
     return new StreamableHTTPClientTransport(
       new URL(mcpServerConfig.httpUrl),
-      transportOptions,
+      withRequiredStreamableHttpAcceptHeader(transportOptions),
     );
   }
 
@@ -1876,7 +1876,7 @@ function createUrlTransport(
     if (mcpServerConfig.type === 'http') {
       return new StreamableHTTPClientTransport(
         new URL(mcpServerConfig.url),
-        transportOptions,
+        withRequiredStreamableHttpAcceptHeader(transportOptions),
       );
     } else if (mcpServerConfig.type === 'sse') {
       return new SSEClientTransport(
@@ -1890,11 +1890,60 @@ function createUrlTransport(
   if (mcpServerConfig.url) {
     return new StreamableHTTPClientTransport(
       new URL(mcpServerConfig.url),
-      transportOptions,
+      withRequiredStreamableHttpAcceptHeader(transportOptions),
     );
   }
 
   throw new Error(`No URL configured for MCP server '${mcpServerName}'`);
+}
+
+const REQUIRED_STREAMABLE_HTTP_ACCEPT_TYPES = [
+  'application/json',
+  'text/event-stream',
+] as const;
+
+function withRequiredStreamableHttpAcceptHeader(
+  transportOptions:
+    | StreamableHTTPClientTransportOptions
+    | SSEClientTransportOptions,
+): StreamableHTTPClientTransportOptions {
+  const requestInit = transportOptions.requestInit ?? {};
+  const existingHeaders = requestInit.headers;
+
+  const headers: Record<string, string> = {
+    ...(existingHeaders && !Array.isArray(existingHeaders)
+      ? existingHeaders
+      : {}),
+  };
+
+  const acceptHeaderKey =
+    Object.keys(headers).find((key) => key.toLowerCase() === 'accept') ??
+    'Accept';
+  const existingAccept = headers[acceptHeaderKey] ?? '';
+
+  const tokens = existingAccept
+    .split(',')
+    .map((token) => token.trim())
+    .filter(Boolean);
+  const mediaTypes = new Set(
+    tokens.map((token) => token.split(';')[0]?.trim().toLowerCase() ?? token),
+  );
+
+  for (const required of REQUIRED_STREAMABLE_HTTP_ACCEPT_TYPES) {
+    if (!mediaTypes.has(required)) {
+      tokens.push(required);
+    }
+  }
+
+  headers[acceptHeaderKey] = tokens.join(', ');
+
+  return {
+    ...transportOptions,
+    requestInit: {
+      ...requestInit,
+      headers,
+    },
+  };
 }
 
 /** Visible for Testing */
